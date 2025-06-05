@@ -1,0 +1,48 @@
+
+
+-- Table for Student
+CREATE TABLE Students (
+    StudentId INT PRIMARY KEY identity(1,1),
+    Name NVARCHAR(100),
+    MobileNo NVARCHAR(20)
+);
+
+-- Table for StudentDocuments
+CREATE TABLE StudentDocuments (
+    DocumentId INT PRIMARY KEY identity(1,1),
+    StudentId INT, -- Foreign key to Students
+    DocumentType NVARCHAR(50),
+    FilePath NVARCHAR(MAX)
+);
+
+-- Table Type
+CREATE TYPE dbo.StudentDocumentType AS TABLE
+(
+    DocumentType NVARCHAR(100),
+    FilePath NVARCHAR(255)
+);
+
+--- Procedure 
+CREATE PROCEDURE dbo.SaveStudentAndDocuments
+    @Name NVARCHAR(100),
+    @MobileNo NVARCHAR(15),
+    @Documents dbo.StudentDocumentType READONLY
+AS
+BEGIN
+    DECLARE @StudentId INT;
+
+    -- Insert student
+    INSERT INTO Students (Name, MobileNo)
+    VALUES (@Name, @MobileNo);
+
+    SET @StudentId = SCOPE_IDENTITY();
+
+    -- Insert documents
+    INSERT INTO StudentDocuments (StudentId, DocumentType, FilePath)
+    SELECT @StudentId, DocumentType, FilePath
+    FROM @Documents;
+END;
+
+
+select * from Students
+select * from StudentDocuments
